@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>d3 bar chart</title>
+
+  <style>
+    .axis {
+      font: 10px san-serif;
+    }
+
+    .axis path,
+    .axis line {
+      fill: none;
+      stroke:#000;
+      shape-rendering: crispEdges;
+    }
+
+  </style>
+</head>
+
+<body>
+  <script src="http://d3js.org/d3.v3.min.js"> </script>
+<script>
+
+var dataset = [
+  {
+    "date": "2013-04-22",
+    "load_volume": 500
+  },
+  {
+    "date": "2013-04-23",
+    "load_volume": 800
+    },
+  {
+    "date": "2013-04-24",
+    "load_volume": 400
+    },
+  {
+    "date": "2013-04-28",
+    "load_volume": 1732
+    },
+  {
+    "date": "2013-04-30",
+    "load_volume": 1000
+  },
+  {
+    "date": "2013-04-25",
+    "load_volume": 550
+  },
+  {
+    "date": "2013-04-19",
+    "load_volume": 700
+  }
+];
+
+
+var margin = {top: 20, right: 20, bottom: 70, left: 40},
+  width = 600 - margin.left - margin.right,
+  height = 300 - margin.top - margin.bottom;
+
+// Parse the date /time
+
+var parseDate = d3.time.format("%Y-%m-%d").parse;
+
+var x = d3.scale.ordinal().rangeRoundBands([0, width], 0.5);
+var y = d3.scale.linear().range([height,0]);
+
+var xAxis = d3.svg.axis()
+    .scale(x)
+    .orient("bottom");
+
+var yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left")
+    .ticks(10);
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", "translate("+margin.left + "," + margin.top + ")")
+
+x.domain(dataset.map(function(d) { return d.date; }));
+y.domain([0, d3.max(dataset, function(d) { return d.load_volume;})]);
+
+svg.append("g")
+    .attr("class", "x axis")
+    .attr("transform", "translate(0," + height +")")
+    .call(xAxis)
+  .selectAll("text")
+    .style("text-anchor", "end")
+    .attr("dx", "-.55em")
+    .attr("transform","rotate(-90)");
+
+svg.append("g")
+    .attr("class", "y axis")
+    .call(yAxis)
+  .append("text")
+    .attr("transform", "rotate(-90)")
+    .attr("y", 6)
+    .attr("dy", ".71em")
+    .style("text-anchor", "end")
+    .text("value ($)");
+
+svg.selectAll("bar")
+    .data(dataset)
+  .enter().append("rect")
+    .style("fill", "pink")
+    .attr ("x", function(d) { return x(d.date);})
+    .attr("width", x.rangeBand())
+    .attr("y", function(d) { return  y(d.load_volume); } )
+    .attr("height", function(d) { return height - y(d.load_volume); } );
+  </script>
+</body>
+</html>
